@@ -191,8 +191,8 @@ pub enum Factor {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct Attributes {
-    ip_address: String,
-    user_agent: String,
+    pub ip_address: String,
+    pub user_agent: String,
 }
 
 #[async_trait]
