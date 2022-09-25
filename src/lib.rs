@@ -167,7 +167,7 @@ pub struct AuthenticationFactor {
     pub last_authenticated_at: Timestamp,
 
     #[serde(flatten)]
-    factor: Factor,
+    pub factor: Factor,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
