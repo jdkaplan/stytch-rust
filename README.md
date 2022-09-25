@@ -6,9 +6,10 @@ An unofficial library for making [Stytch] API requests in Rust.
 
 ## Disclaimers
 
-Although I am employed by Stytch, none of this work was done using company time
-or resources. However, if Stytch wants to officially support this, I will
-gladly transfer repo ownership.
+Although I am employed by Stytch, this is unrelated to my work there. I only
+work on this in my free time (as needed to support another hobby project).
+However, if Stytch wants to officially support this, I will gladly transfer
+repo ownership.
 
 Also, I am a Rust novice! The code you find here is probably not idiomatic or
 efficient. I'm open to making it better if you share ideas or point out ways to
