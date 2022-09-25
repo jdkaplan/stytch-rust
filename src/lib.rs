@@ -189,7 +189,7 @@ pub enum Factor {
     // TODO: Fill in other factor variants
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Default)]
 pub struct Attributes {
     pub ip_address: String,
     pub user_agent: String,
