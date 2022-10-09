@@ -25,6 +25,8 @@ Breaking changes:
   - req.send(client).await
   + client.send(req.build()).await
   ```
+- Removed the `stytch::Sender` trait. This was a premature abstraction over
+  client implementations that don't yet exist.
 
 ## v0.1.1 - 2022-09-24
 

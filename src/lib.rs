@@ -1,5 +1,4 @@
-use async_trait::async_trait;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 const LIVE_URL: &str = "https://api.stytch.com/v1/";
@@ -140,15 +139,6 @@ pub enum Factor {
 pub struct Attributes {
     pub ip_address: String,
     pub user_agent: String,
-}
-
-#[async_trait]
-pub trait Sender {
-    /// Send the built request and deserialize the response.
-    async fn send<Req, Res>(&self, req: crate::Request<Req>) -> Result<Res>
-    where
-        Req: Serialize + std::fmt::Debug + std::marker::Send,
-        Res: DeserializeOwned + std::fmt::Debug;
 }
 
 macro_rules! route {

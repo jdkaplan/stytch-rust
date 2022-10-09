@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use derivative::Derivative;
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -30,11 +29,8 @@ impl Client {
             base_url: config.base_url,
         })
     }
-}
 
-#[async_trait]
-impl crate::Sender for Client {
-    async fn send<Req, Res>(&self, req: crate::Request<Req>) -> crate::Result<Res>
+    pub async fn send<Req, Res>(&self, req: crate::Request<Req>) -> crate::Result<Res>
     where
         Req: Serialize + std::fmt::Debug + std::marker::Send,
         Res: DeserializeOwned + std::fmt::Debug,
