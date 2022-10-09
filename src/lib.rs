@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use derivative::Derivative;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use url::Url;
 
@@ -29,7 +28,7 @@ impl From<String> for Env {
 }
 
 impl Env {
-    fn base_url(self) -> std::result::Result<Url, url::ParseError> {
+    pub fn base_url(self) -> std::result::Result<Url, url::ParseError> {
         match self {
             Env::Live => Url::parse(LIVE_URL),
             Env::Test => Url::parse(TEST_URL),
@@ -59,74 +58,22 @@ pub enum Error {
     InvalidUrl(#[from] url::ParseError),
 
     #[error(transparent)]
-    ReqwestError(#[from] reqwest::Error),
+    Other(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+pub struct Request<Body: Serialize + Send> {
+    pub method: http::Method,
+    pub path: String,
+    pub body: Body,
+}
+
 #[derive(Clone)]
 pub struct Config {
-    pub env: Env,
+    pub base_url: url::Url,
     pub project_id: String,
     pub secret: String,
-}
-
-impl Config {
-    pub fn client(self) -> Result<Client> {
-        Client::new(self)
-    }
-}
-
-#[derive(Clone, Derivative)]
-#[derivative(Debug)]
-pub struct Client {
-    #[derivative(Debug = "ignore")]
-    client: reqwest::Client,
-    base_url: Url,
-}
-
-impl Client {
-    pub fn new(config: Config) -> Result<Self> {
-        let mut headers = http::header::HeaderMap::new();
-        let encoded = base64::encode(format!("{}:{}", config.project_id, config.secret));
-        let basic_auth = format!("Basic {}", encoded).parse::<http::header::HeaderValue>()?;
-        headers.insert(http::header::AUTHORIZATION, basic_auth);
-
-        let client = reqwest::Client::builder()
-            // TODO: .user_agent()
-            .default_headers(headers)
-            .build()?;
-
-        Ok(Self {
-            client,
-            base_url: config.env.base_url()?,
-        })
-    }
-}
-
-#[async_trait]
-impl Sender for Client {
-    fn request(&self, method: http::Method, path: &str) -> Result<reqwest::RequestBuilder> {
-        let url = self.base_url.join(path)?;
-        Ok(self.client.request(method, url))
-    }
-
-    async fn send<T>(&self, req: reqwest::RequestBuilder) -> Result<T>
-    where
-        T: DeserializeOwned + std::fmt::Debug,
-    {
-        tracing::debug!({ req = ?req }, "send Stytch request");
-        let res = req.send().await?;
-        if res.status().is_success() {
-            let body = res.json().await?;
-            tracing::debug!({ ?body }, "Stytch response success");
-            Ok(body)
-        } else {
-            let err = res.json::<ErrorResponse>().await?;
-            tracing::debug!({ ?err }, "Stytch response error");
-            Err(Error::Response(err))
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -197,25 +144,29 @@ pub struct Attributes {
 
 #[async_trait]
 pub trait Sender {
-    /// Start building a request with the method and path.
-    fn request(&self, method: http::Method, path: &str) -> Result<reqwest::RequestBuilder>;
-
     /// Send the built request and deserialize the response.
-    async fn send<T>(&self, req: reqwest::RequestBuilder) -> Result<T>
+    async fn send<Req, Res>(&self, req: crate::Request<Req>) -> Result<Res>
     where
-        T: DeserializeOwned + std::fmt::Debug;
+        Req: Serialize + std::fmt::Debug + std::marker::Send,
+        Res: DeserializeOwned + std::fmt::Debug;
 }
 
 macro_rules! route {
-    ( $method:expr, $path:literal, $Req:ty, $Res:ty ) => {
+    ( $method:expr, $path:literal, $Req:ty) => {
         impl $Req {
-            pub async fn send(self, client: impl crate::Sender) -> crate::Result<$Res> {
-                let req = client.request($method, $path)?.json(&self);
-                client.send(req).await
+            pub fn build(self) -> crate::Request<Self> {
+                crate::Request {
+                    method: $method,
+                    path: $path.into(),
+                    body: self,
+                }
             }
         }
     };
 }
+
+#[cfg(feature = "reqwest")]
+pub mod reqwest;
 
 pub mod magic_links;
 pub mod sessions;

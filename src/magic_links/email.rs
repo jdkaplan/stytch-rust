@@ -19,9 +19,4 @@ pub struct SendResponse {
     pub email_id: String,
 }
 
-route!(
-    http::Method::POST,
-    "magic_links/email/send",
-    SendRequest,
-    SendResponse
-);
+route!(http::Method::POST, "magic_links/email/send", SendRequest);

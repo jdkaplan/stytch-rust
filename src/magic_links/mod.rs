@@ -26,6 +26,5 @@ pub struct AuthenticateResponse {
 route!(
     http::Method::POST,
     "magic_links/authenticate",
-    AuthenticateRequest,
-    AuthenticateResponse
+    AuthenticateRequest
 );

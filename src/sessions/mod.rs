@@ -24,8 +24,7 @@ pub struct AuthenticateResponse {
 route!(
     http::Method::POST,
     "sessions/authenticate",
-    AuthenticateRequest,
-    AuthenticateResponse
+    AuthenticateRequest
 );
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -43,9 +42,4 @@ pub struct RevokeResponse {
     pub request_id: String,
 }
 
-route!(
-    http::Method::POST,
-    "sessions/revoke",
-    RevokeRequest,
-    RevokeResponse
-);
+route!(http::Method::POST, "sessions/revoke", RevokeRequest);
