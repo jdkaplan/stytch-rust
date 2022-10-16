@@ -35,7 +35,8 @@ impl Client {
         Req: Serialize + std::fmt::Debug + std::marker::Send,
         Res: DeserializeOwned + std::fmt::Debug,
     {
-        let req = self.client.request(req.method, req.path).json(&req.body);
+        let url = self.base_url.join(&req.path)?;
+        let req = self.client.request(req.method, url).json(&req.body);
 
         tracing::debug!({ req = ?req }, "send Stytch request");
         let res = req.send().await?;
