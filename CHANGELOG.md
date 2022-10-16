@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## v0.2.0 - 2022-10-16
 
 This removes a previously-required dependency on `reqwest`. This should make it
 easier to write a client that uses one of the other common HTTP request
@@ -18,6 +18,7 @@ Breaking changes:
 
 - Removed the `stytch::Client` type. To use its replacement, enable the
   `reqwest` feature and use `stytch::reqwest::Client` and see the next item.
+
 - Removed the `send` method from all requests. Use `req.build()` to build a
   `stytch::Request` and pass it to a client.
 
@@ -25,6 +26,7 @@ Breaking changes:
   - req.send(client).await
   + client.send(req.build()).await
   ```
+
 - Removed the `stytch::Sender` trait. This was a premature abstraction over
   client implementations that don't yet exist.
 
@@ -33,7 +35,9 @@ Breaking changes:
 Fixes:
 
 - Implement `Default` for `Attributes` to make it easier to build requests and responses that don't use them.
+
 - Make all `Attributes` fields public.
+
 - Make `AuthenticationFactor.factor` public.
 
 
