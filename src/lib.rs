@@ -160,6 +160,7 @@ pub mod reqwest;
 
 pub mod magic_links;
 pub mod sessions;
+pub mod users;
 
 #[cfg(test)]
 mod tests {
